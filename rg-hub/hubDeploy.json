@@ -29,7 +29,7 @@
     "winJumpHosts": {
       "defaultValue": 2,
       "type": "int",
-      "minValue": "0",
+      "minValue": "1",
       "maxValue": "8",
       "metadata": {
         "description": "Number of Windows Jump-Hosts to deploy"
@@ -100,13 +100,13 @@
     "winJmphostVmPass": {
       "type": "securestring",
       "metadata": {
-        "description": "Password for Windows jump-host VMs"
+        "description": "Password for Windows jump-host VMs. The password must be between 6-72 characters long and must satisfy at least 3 of password complexity requirements from the following: 1) Contains an uppercase character 2) Contains a lowercase character 3) Contains a numeric digit 4) Contains a special character 5) Control characters are not allowed"
       }
     },
     "linuxJumpHosts": {
       "defaultValue": 2,
       "type": "int",
-      "minValue": "0",
+      "minValue": "1",
       "maxValue": "8",
       "metadata": {
         "description": "Number of Linux Jump-Hosts to deploy"
@@ -174,7 +174,7 @@
     "linuxJmphostVmPass": {
       "type": "securestring",
       "metadata": {
-        "description": "Password for Linux jump-host VMs"
+        "description": "Password for Linux jump-host VMs. The password must be between 6-72 characters long and must satisfy at least 3 of password complexity requirements from the following: 1) Contains an uppercase character 2) Contains a lowercase character 3) Contains a numeric digit 4) Contains a special character 5) Control characters are not allowed"
       }
     },
     "hubVnetTagValues": {
@@ -208,6 +208,10 @@
         "parameters": {
           "hubVnetName": { "value": "[parameters('hubVnetName')]" },
           "hubVnetPrefix": { "value": "[parameters('hubVnetPrefix')]" },
+          "subnetManagementName": { "value": "[parameters('subnetManagementName')]" },
+          "subnetManagementPrefix": { "value": "[parameters('subnetManagementPrefix')]" },
+          "subnetSharedName": { "value": "[parameters('subnetSharedName')]" },
+          "subnetSharedPrefix": { "value": "[parameters('subnetSharedPrefix')]" },
           "tagValues": { "value": "[parameters('hubVnetTagValues')]" }
         }
       }
@@ -216,6 +220,9 @@
       "apiVersion": "2018-02-01",
       "name": "hubJumpHostsTemplate",
       "type": "Microsoft.Resources/deployments",
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'hubVnetTemplate')]"
+      ],
       "properties": {
         "mode": "incremental",
         "templateLink": {
@@ -238,10 +245,7 @@
           "linuxVmSize": { "value": "[parameters('linuxVmSize')]" },
           "linuxJmphostVmUser": { "value": "[parameters('linuxJmphostVmUser')]" },
           "linuxJmphostVmPass": { "value": "[parameters('linuxJmphostVmPass')]" }
-        },
-        "dependsOn": [
-          "[resourceId('Microsoft.Resources/deployments', 'hubVnetTemplate')]"
-        ]
+        }
       }
     }
   ],

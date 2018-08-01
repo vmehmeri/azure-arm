@@ -11,7 +11,7 @@
     "winJumpHosts": {
       "defaultValue": 2,
       "type": "int",
-      "minValue": "0",
+      "minValue": "1",
       "maxValue": "8",
       "metadata": {
         "description": "Number of Windows Jump-Hosts to deploy"
@@ -88,7 +88,7 @@
     "linuxJumpHosts": {
       "defaultValue": 2,
       "type": "int",
-      "minValue": "0",
+      "minValue": "1",
       "maxValue": "8",
       "metadata": {
         "description": "Number of Linux Jump-Hosts to deploy"
