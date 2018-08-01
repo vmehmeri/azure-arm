@@ -238,7 +238,10 @@
           "linuxVmSize": { "value": "[parameters('linuxVmSize')]" },
           "linuxJmphostVmUser": { "value": "[parameters('linuxJmphostVmUser')]" },
           "linuxJmphostVmPass": { "value": "[parameters('linuxJmphostVmPass')]" }
-        }
+        },
+        "dependsOn": [
+          "[resourceId('Microsoft.Resources/deployments', 'hubVnetTemplate')]"
+        ]
       }
     }
   ],
