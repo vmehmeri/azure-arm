@@ -54,24 +54,6 @@
         "dhcpOptions": {
           "dnsServers": []
         },
-        "subnets": [
-          {
-            "name": "[parameters('subnetManagementName')]",
-            "properties": {
-              "provisioningState": "Succeeded",
-              "addressPrefix": "[parameters('subnetManagementPrefix')]",
-              "serviceEndpoints": []
-            }
-          },
-          {
-            "name": "[parameters('subnetSharedName')]",
-            "properties": {
-              "provisioningState": "Succeeded",
-              "addressPrefix": "[parameters('subnetSharedPrefix')]",
-              "serviceEndpoints": []
-            }
-          }
-        ],
         "virtualNetworkPeerings": [],
         "enableDdosProtection": false,
         "enableVmProtection": false
