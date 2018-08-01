@@ -191,8 +191,8 @@
     }
   },
   "variables": {
-    "hubVnetTemplateURI": "",
-    "hubJumpHostsTemplateURI": ""
+    "hubVnetTemplateURI": "https://raw.githubusercontent.com/vmehmeri/azure-arm/master/rg-hub/nestedtemplates/hubVnetDeploy.json",
+    "hubJumpHostsTemplateURI": "https://raw.githubusercontent.com/vmehmeri/azure-arm/master/rg-hub/nestedtemplates/hubJumpHostsDeploy.json"
   },
   "resources": [
     {
