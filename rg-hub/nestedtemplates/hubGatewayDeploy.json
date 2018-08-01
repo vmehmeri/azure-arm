@@ -1,0 +1,37 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "existingHubVnet": {
+      "type": "String"
+    },
+    "gatewayName": {
+      "type": "string"
+    },
+    "gatewaySku": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "allowedValues": [
+        "Basic",
+        "VpnGw1",
+        "VpnGw2",
+        "VpnGw3"
+      ],
+      "metadata": {
+        "description": "The Sku of the Gateway. This must be one of Basic, Standard or HighPerformance."
+      }
+    },
+    "gatewaySubnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.124.15.224/27"
+    }
+  },
+  "variables": {
+    "subnetGatewayName": "GatewaySubnet",
+    "subnetGatewayPrefix": "10.124.15.224/27",
+    "subnetGatewayId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('existingHubVnet'), variables('subnetGatewayName'))]",
+    "gatewayPIPName": "[concat('PIP_', parameters('gatewayName'))]"
+  },
+  "resources": [],
+  "outputs": {}
+}

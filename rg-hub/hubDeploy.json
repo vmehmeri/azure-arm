@@ -1,0 +1,246 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-02-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "hubVnetName": {
+      "defaultValue": "VNet_HUB",
+      "type": "String"
+    },
+    "hubVnetPrefix": {
+      "defaultValue": "10.124.0.0/20",
+      "type": "String"
+    },
+    "subnetManagementName": {
+      "type": "string",
+      "defaultValue": "ManagementSubnet"
+    },
+    "subnetManagementPrefix": {
+      "type": "string",
+      "defaultValue": "10.124.1.0/24"
+    },
+    "subnetSharedName": {
+      "type": "string",
+      "defaultValue": "SharedSubnet"
+    },
+    "subnetSharedPrefix": {
+      "type": "string",
+      "defaultValue": "10.124.4.0/22"
+    },
+    "winJumpHosts": {
+      "defaultValue": 2,
+      "type": "int",
+      "minValue": "1",
+      "maxValue": "8",
+      "metadata": {
+        "description": "Number of Windows Jump-Hosts to deploy"
+      }
+    },
+    "winJmphostVmNamePrefix": {
+      "type": "String"
+    },
+    "windowsOSVersion": {
+      "type": "string",
+      "defaultValue": "2016-Datacenter",
+      "allowedValues": [
+        "2008-R2-SP1",
+        "2012-Datacenter",
+        "2012-R2-Datacenter",
+        "2016-Nano-Server",
+        "2016-Datacenter-with-Containers",
+        "2016-Datacenter"
+      ],
+      "metadata": {
+        "description": "The Windows version for Windows Jump-host VMs."
+      }
+    },
+    "winVmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D3_v2",
+      "allowedValues": [
+        "Standard_A1_v2",
+        "Standard_A2m_v2",
+        "Standard_A2_v2",
+        "Standard_A4m_v2",
+        "Standard_A4_v2",
+        "Standard_A8m_v2",
+        "Standard_A8_v2",
+        "Standard_B1ms",
+        "Standard_B1s",
+        "Standard_B2ms",
+        "Standard_B2s",
+        "Standard_B4ms",
+        "Standard_B8ms",
+        "Standard_D1_v2",
+        "Standard_D2_v2",
+        "Standard_D3_v2",
+        "Standard_D4_v2",
+        "Standard_D5_v2",
+        "Standard_D11_v2",
+        "Standard_D12_v2",
+        "Standard_D13_v2",
+        "Standard_D14_v2",
+        "Standard_D15_v2",
+        "Standard_DS1_v2",
+        "Standard_DS2_v2",
+        "Standard_DS3_v2",
+        "Standard_DS4_v2",
+        "Standard_DS5_v2"
+      ],
+      "metadata": {
+        "description": "Size for Windows jump-host VMs"
+      }
+    },
+    "winJmphostVmUser": {
+      "type": "string",
+      "defaultValue": "WinAdmin",
+      "metadata": {
+        "description": "Username for Windows jump-host VMs"
+      }
+    },
+    "winJmphostVmPass": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for Windows jump-host VMs"
+      }
+    },
+    "linuxJumpHosts": {
+      "defaultValue": 2,
+      "type": "int",
+      "minValue": "1",
+      "maxValue": "8",
+      "metadata": {
+        "description": "Number of Linux Jump-Hosts to deploy"
+      }
+    },
+    "linuxJmphostVmNamePrefix": {
+      "type": "String"
+    },
+    "LinuxOSVersion": {
+      "type": "string",
+      "defaultValue": "7.5",
+      "allowedValues": [
+        "7.3",
+        "7.4",
+        "7.5"
+      ],
+      "metadata": {
+        "description": "The CentOS version for Linux Jump-host VMs"
+      }
+    },
+    "linuxVmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D1_v2",
+      "allowedValues": [
+        "Standard_A1_v2",
+        "Standard_A2m_v2",
+        "Standard_A2_v2",
+        "Standard_A4m_v2",
+        "Standard_A4_v2",
+        "Standard_A8m_v2",
+        "Standard_A8_v2",
+        "Standard_B1ms",
+        "Standard_B1s",
+        "Standard_B2ms",
+        "Standard_B2s",
+        "Standard_B4ms",
+        "Standard_B8ms",
+        "Standard_D1_v2",
+        "Standard_D2_v2",
+        "Standard_D3_v2",
+        "Standard_D4_v2",
+        "Standard_D5_v2",
+        "Standard_D11_v2",
+        "Standard_D12_v2",
+        "Standard_D13_v2",
+        "Standard_D14_v2",
+        "Standard_D15_v2",
+        "Standard_DS1_v2",
+        "Standard_DS2_v2",
+        "Standard_DS3_v2",
+        "Standard_DS4_v2",
+        "Standard_DS5_v2"
+      ],
+      "metadata": {
+        "description": "Size for Linux jump-host VMs"
+      }
+    },
+    "linuxJmphostVmUser": {
+      "type": "string",
+      "defaultValue": "LinuxAdmin",
+      "metadata": {
+        "description": "Username for Linux jump-host VMs"
+      }
+    },
+    "linuxJmphostVmPass": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for Linux jump-host VMs"
+      }
+    },
+    "hubVnetTagValues": {
+      "type": "object",
+      "defaultValue": {
+        "owner": "v.dantas.mehmeri@accenture.com"
+      }
+    },
+    "hubJumpHostsTagValues": {
+      "type": "object",
+      "defaultValue": {
+        "owner": "v.dantas.mehmeri@accenture.com"
+      }
+    }
+  },
+  "variables": {
+    "hubVnetTemplateURI": "",
+    "hubJumpHostsTemplateURI": ""
+  },
+  "resources": [
+    {
+      "apiVersion": "2018-02-01",
+      "name": "hubVnetTemplate",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "incremental",
+        "templateLink": {
+          "contentVersion": "1.0.0.0",
+          "uri": "[variables('hubVnetTemplateURI')]"
+        },
+        "parameters": {
+          "hubVnetName": { "value": "[parameters('hubVnetName')]" },
+          "hubVnetPrefix": { "value": "[parameters('hubVnetPrefix')]" },
+          "tagValues": { "value": "[parameters('hubVnetTagValues')]" }
+        }
+      }
+    },
+    {
+      "apiVersion": "2018-02-01",
+      "name": "hubJumpHostsTemplate",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "incremental",
+        "templateLink": {
+          "contentVersion": "1.0.0.0",
+          "uri": "[variables('hubJumpHostsTemplateURI')]"
+        },
+        "parameters": {
+          "existingHubVnetName": { "value": "[parameters('hubVnetName')]" },
+          "existingManagementSubnetName": { "value": "[parameters('subnetManagementName')]" },
+          "tagValues": { "value": "[parameters('hubJumpHostsTagValues')]" },
+          "winJumpHosts": { "value": "[parameters('winJumpHosts')]" },
+          "winJmphostVmNamePrefix": { "value": "[parameters('winJmphostVmNamePrefix')]" },
+          "windowsOSVersion": { "value": "[parameters('windowsOSVersion')]" },
+          "winVmSize": { "value": "[parameters('winVmSize')]" },
+          "winJmphostVmUser": { "value": "[parameters('winJmphostVmUser')]" },
+          "winJmphostVmPass": { "value": "[parameters('winJmphostVmPass')]" },
+          "linuxJumpHosts": { "value": "[parameters('linuxJumpHosts')]" },
+          "linuxJmphostVmNamePrefix": { "value": "[parameters('linuxJmphostVmNamePrefix')]" },
+          "LinuxOSVersion": { "value": "[parameters('LinuxOSVersion')]" },
+          "linuxVmSize": { "value": "[parameters('linuxVmSize')]" },
+          "linuxJmphostVmUser": { "value": "[parameters('linuxJmphostVmUser')]" },
+          "linuxJmphostVmPass": { "value": "[parameters('linuxJmphostVmPass')]" }
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}

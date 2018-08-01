@@ -1,0 +1,113 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "hubVnetName": {
+      "defaultValue": "VNet_HUB",
+      "type": "String"
+    },
+    "hubVnetPrefix": {
+      "defaultValue": "10.124.0.0/20",
+      "type": "String"
+    },
+    "subnetManagementName": {
+      "type": "string",
+      "defaultValue": "ManagementSubnet"
+    },
+    "subnetManagementPrefix": {
+      "type": "string",
+      "defaultValue": "10.124.1.0/24"
+    },
+    "subnetSharedName": {
+      "type": "string",
+      "defaultValue": "SharedSubnet"
+    },
+    "subnetSharedPrefix": {
+      "type": "string",
+      "defaultValue": "10.124.4.0/22"
+    },
+    "tagValues": {
+      "type": "object",
+      "defaultValue": {
+        "owner": "v.dantas.mehmeri@accenture.com"
+      }
+    }
+  },
+  "variables": {
+  },
+  "resources": [
+    {
+      "comments": "HUB Virtual Network (VNet)",
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[parameters('hubVnetName')]",
+      "apiVersion": "2018-02-01",
+      "location": "[resourceGroup().location]",
+      "tags": "[parameters('tagValues')]",
+      "scale": null,
+      "properties": {
+        "provisioningState": "Succeeded",
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('hubVnetPrefix')]"
+          ]
+        },
+        "dhcpOptions": {
+          "dnsServers": []
+        },
+        "subnets": [
+          {
+            "name": "[parameters('subnetManagementName')]",
+            "properties": {
+              "provisioningState": "Succeeded",
+              "addressPrefix": "[parameters('subnetManagementPrefix')]",
+              "serviceEndpoints": []
+            }
+          },
+          {
+            "name": "[parameters('subnetSharedName')]",
+            "properties": {
+              "provisioningState": "Succeeded",
+              "addressPrefix": "[parameters('subnetSharedPrefix')]",
+              "serviceEndpoints": []
+            }
+          }
+        ],
+        "virtualNetworkPeerings": [],
+        "enableDdosProtection": false,
+        "enableVmProtection": false
+      },
+      "dependsOn": []
+    },
+    {
+      "comments": "Management Subnet",
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "name": "[concat(parameters('hubVnetName'), '/', parameters('subnetManagementName'))]",
+      "apiVersion": "2018-02-01",
+      "scale": null,
+      "properties": {
+        "provisioningState": "Succeeded",
+        "addressPrefix": "[parameters('subnetManagementPrefix')]",
+        "serviceEndpoints": []
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubVnetName'))]"
+      ]
+    },
+    {
+      "comments": "Shared Subnet",
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "name": "[concat(parameters('hubVnetName'), '/', parameters('subnetSharedName'))]",
+      "apiVersion": "2018-02-01",
+      "scale": null,
+      "properties": {
+        "provisioningState": "Succeeded",
+        "addressPrefix": "[parameters('subnetSharedPrefix')]",
+        "serviceEndpoints": []
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubVnetName'))]"
+      ]
+    }
+  ],
+  "outputs": {}
+}

@@ -1,0 +1,879 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "existingHubVnetName": {
+      "type": "String"
+    },
+    "existingManagementSubnetName": {
+      "type": "String"
+    },
+    "winJumpHosts": {
+      "defaultValue": 2,
+      "type": "int",
+      "minValue": "1",
+      "maxValue": "8",
+      "metadata": {
+        "description": "Number of Windows Jump-Hosts to deploy"
+      }
+    },
+    "winJmphostVmNamePrefix": {
+      "type": "String"
+    },
+    "windowsOSVersion": {
+      "type": "string",
+      "defaultValue": "2016-Datacenter",
+      "allowedValues": [
+        "2008-R2-SP1",
+        "2012-Datacenter",
+        "2012-R2-Datacenter",
+        "2016-Nano-Server",
+        "2016-Datacenter-with-Containers",
+        "2016-Datacenter"
+      ],
+      "metadata": {
+        "description": "The Windows version for Windows Jump-host VMs."
+      }
+    },
+    "winVmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D3_v2",
+      "allowedValues": [
+        "Standard_A1_v2",
+        "Standard_A2m_v2",
+        "Standard_A2_v2",
+        "Standard_A4m_v2",
+        "Standard_A4_v2",
+        "Standard_A8m_v2",
+        "Standard_A8_v2",
+        "Standard_B1ms",
+        "Standard_B1s",
+        "Standard_B2ms",
+        "Standard_B2s",
+        "Standard_B4ms",
+        "Standard_B8ms",
+        "Standard_D1_v2",
+        "Standard_D2_v2",
+        "Standard_D3_v2",
+        "Standard_D4_v2",
+        "Standard_D5_v2",
+        "Standard_D11_v2",
+        "Standard_D12_v2",
+        "Standard_D13_v2",
+        "Standard_D14_v2",
+        "Standard_D15_v2",
+        "Standard_DS1_v2",
+        "Standard_DS2_v2",
+        "Standard_DS3_v2",
+        "Standard_DS4_v2",
+        "Standard_DS5_v2"
+      ],
+      "metadata": {
+        "description": "Size for Windows jump-host VMs"
+      }
+    },
+    "winJmphostVmUser": {
+      "type": "string",
+      "defaultValue": "WinAdmin",
+      "metadata": {
+        "description": "Username for Windows jump-host VMs"
+      }
+    },
+    "winJmphostVmPass": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for Windows jump-host VMs"
+      }
+    },
+    "linuxJumpHosts": {
+      "defaultValue": 2,
+      "type": "int",
+      "minValue": "1",
+      "maxValue": "8",
+      "metadata": {
+        "description": "Number of Linux Jump-Hosts to deploy"
+      }
+    },
+    "linuxJmphostVmNamePrefix": {
+      "type": "String"
+    },
+    "LinuxOSVersion": {
+      "type": "string",
+      "defaultValue": "7.5",
+      "allowedValues": [
+        "7.3",
+        "7.4",
+        "7.5"
+      ],
+      "metadata": {
+        "description": "The CentOS version for Linux Jump-host VMs"
+      }
+    },
+    "linuxVmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D1_v2",
+      "allowedValues": [
+        "Standard_A1_v2",
+        "Standard_A2m_v2",
+        "Standard_A2_v2",
+        "Standard_A4m_v2",
+        "Standard_A4_v2",
+        "Standard_A8m_v2",
+        "Standard_A8_v2",
+        "Standard_B1ms",
+        "Standard_B1s",
+        "Standard_B2ms",
+        "Standard_B2s",
+        "Standard_B4ms",
+        "Standard_B8ms",
+        "Standard_D1_v2",
+        "Standard_D2_v2",
+        "Standard_D3_v2",
+        "Standard_D4_v2",
+        "Standard_D5_v2",
+        "Standard_D11_v2",
+        "Standard_D12_v2",
+        "Standard_D13_v2",
+        "Standard_D14_v2",
+        "Standard_D15_v2",
+        "Standard_DS1_v2",
+        "Standard_DS2_v2",
+        "Standard_DS3_v2",
+        "Standard_DS4_v2",
+        "Standard_DS5_v2"
+      ],
+      "metadata": {
+        "description": "Size for Linux jump-host VMs"
+      }
+    },
+    "linuxJmphostVmUser": {
+      "type": "string",
+      "defaultValue": "LinuxAdmin",
+      "metadata": {
+        "description": "Username for Linux jump-host VMs"
+      }
+    },
+    "linuxJmphostVmPass": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for Linux jump-host VMs"
+      }
+    },
+    "tagValues": {
+      "type": "object",
+      "defaultValue": {
+        "owner": "v.dantas.mehmeri@accenture.com"
+      }
+    }
+  },
+  "variables": {
+    "winAvailabilitySetName": "AVSET_HUB_WINJHOSTS",
+    "linuxAvailabilitySetName": "AVSET_HUB_LINUXJHOSTS",
+    "winNicNamePrefix": "[concat('NIC_', parameters('winJmphostVmNamePrefix'))]",
+    "linuxNicNamePrefix": "[concat('NIC_', parameters('linuxJmphostVmNamePrefix'))]",
+    "winVmStorageNamePrefix": "[concat(toLower('vmstorage'), toLower(parameters('winJmphostVmNamePrefix')))]",
+    "linuxVmStorageNamePrefix": "[concat(toLower('vmstorage'), toLower(parameters('linuxJmphostVmNamePrefix')))]",
+    "winNsgName": "NSG_WIN_JMPHOST",
+    "winNsgRuleName": "NSG_RULE_INBOUND_RDP",
+    "linuxNsgName": "NSG_LINUX_JMPHOST",
+    "linuxNsgRuleName": "NSG_RULE_INBOUND_SSH"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "[variables('winAvailabilitySetName')]",
+      "apiVersion": "2017-12-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "platformFaultDomainCount": 2,
+        "platformUpdateDomainCount": 2
+      },
+      "sku": {
+        "name": "Aligned"
+      }
+    },
+    {
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "[variables('linuxAvailabilitySetName')]",
+      "apiVersion": "2017-12-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "platformFaultDomainCount": 2,
+        "platformUpdateDomainCount": 2
+      },
+      "sku": {
+        "name": "Aligned"
+      }
+    },
+    {
+      "comments": "Windows Jump-Hosts",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[concat(parameters('winJmphostVmNamePrefix'), '0', copyIndex(1))]",
+      "apiVersion": "2017-12-01",
+      "location": "[resourceGroup().location]",
+      "tags": "[parameters('tagValues')]",
+      "copy": {
+        "name": "winjmphostcopy",
+        "count": "[parameters('winJumpHosts')]"
+      },
+      "scale": null,
+      "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('winAvailabilitySetName'))]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[parameters('winVmSize')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "WindowsServer",
+            "sku": "[parameters('windowsOSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "FromImage"
+          },
+          "dataDisks": [
+            {
+              "diskSizeGB": 20,
+              "lun": 0,
+              "createOption": "Empty"
+            }
+          ]
+        },
+        "osProfile": {
+          "computerName": "[concat(parameters('winJmphostVmNamePrefix'), '0', copyIndex(1))]",
+          "adminUsername": "[parameters('winJmphostVmUser')]",
+          "adminPassword": "[parameters('winJmphostVmPass')]",
+          "windowsConfiguration": {
+            "provisionVMAgent": true
+          },
+          "secrets": []
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('winNicNamePrefix'), '0', copyIndex(1)))]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[concat('https', '://', variables('winVmStorageNamePrefix'), '0', copyIndex(1), '.blob.core.windows.net', '/')]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('winNicNamePrefix'), '0', copyIndex(1)))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', concat(variables('winVmStorageNamePrefix'), '0', copyIndex(1)))]",
+        "[concat('Microsoft.Compute/availabilitySets/', variables('winAvailabilitySetName'))]"
+      ]
+    },
+    {
+      "comments": "Network Interface Card (NIC) for Win Jump-Hosts",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(variables('winNicNamePrefix'), '0', copyIndex(1))]",
+      "apiVersion": "2018-02-01",
+      "location": "[resourceGroup().location]",
+      "tags": "[parameters('tagValues')]",
+      "copy": {
+        "name": "winjmphostcopy",
+        "count": "[parameters('winJumpHosts')]"
+      },
+      "scale": null,
+      "properties": {
+        "provisioningState": "Succeeded",
+        "ipConfigurations": [
+          {
+            "name": "[concat('ipconfig', '0', copyIndex(1))]",
+            "properties": {
+              "provisioningState": "Succeeded",
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat('PIP_', parameters('winJmphostVmNamePrefix'), '0', copyIndex(1)))]"
+              },
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('existingHubVnetName'), parameters('existingManagementSubnetName'))]"
+              },
+              "primary": true,
+              "privateIPAddressVersion": "IPv4"
+            }
+          }
+        ],
+        "dnsSettings": {
+          "dnsServers": [],
+          "appliedDnsServers": [],
+          "internalDomainNameSuffix": "[concat(toLower(parameters('winJmphostVmNamePrefix')),'.ax.internal.cloudapp.net')]"
+        },
+        "enableAcceleratedNetworking": false,
+        "enableIPForwarding": false,
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('winNsgName'))]"
+        },
+        "primary": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', concat('PIP_', parameters('winJmphostVmNamePrefix'), '0', copyIndex(1)))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('existingHubVnetName'), parameters('existingManagementSubnetName'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('winNsgName'))]"
+      ]
+    },
+    {
+      "comments": "NSG For Windows Jump Hosts",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('winNsgName')]",
+      "apiVersion": "2018-02-01",
+      "location": "[resourceGroup().location]",
+      "tags": "[parameters('tagValues')]",
+      "scale": null,
+      "properties": {
+        "provisioningState": "Succeeded",
+        "securityRules": [
+          {
+            "name": "NSG_RULE_INBOUND_RDP",
+            "properties": {
+              "provisioningState": "Succeeded",
+              "description": "Allow inbound RDP",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1000,
+              "direction": "Inbound",
+              "sourcePortRanges": [],
+              "destinationPortRanges": [],
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          }
+        ],
+        "defaultSecurityRules": [
+          {
+            "name": "AllowVnetInBound",
+            "properties": {
+              "provisioningState": "Succeeded",
+              "description": "Allow inbound traffic from all VMs in VNET",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "VirtualNetwork",
+              "destinationAddressPrefix": "VirtualNetwork",
+              "access": "Allow",
+              "priority": 65000,
+              "direction": "Inbound",
+              "sourcePortRanges": [],
+              "destinationPortRanges": [],
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          },
+          {
+            "name": "AllowAzureLoadBalancerInBound",
+            "properties": {
+              "provisioningState": "Succeeded",
+              "description": "Allow inbound traffic from azure load balancer",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "AzureLoadBalancer",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 65001,
+              "direction": "Inbound",
+              "sourcePortRanges": [],
+              "destinationPortRanges": [],
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          },
+          {
+            "name": "DenyAllInBound",
+            "properties": {
+              "provisioningState": "Succeeded",
+              "description": "Deny all inbound traffic",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Deny",
+              "priority": 65500,
+              "direction": "Inbound",
+              "sourcePortRanges": [],
+              "destinationPortRanges": [],
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          },
+          {
+            "name": "AllowVnetOutBound",
+            "properties": {
+              "provisioningState": "Succeeded",
+              "description": "Allow outbound traffic from all VMs to all VMs in VNET",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "VirtualNetwork",
+              "destinationAddressPrefix": "VirtualNetwork",
+              "access": "Allow",
+              "priority": 65000,
+              "direction": "Outbound",
+              "sourcePortRanges": [],
+              "destinationPortRanges": [],
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          },
+          {
+            "name": "AllowInternetOutBound",
+            "properties": {
+              "provisioningState": "Succeeded",
+              "description": "Allow outbound traffic from all VMs to Internet",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "Internet",
+              "access": "Allow",
+              "priority": 65001,
+              "direction": "Outbound",
+              "sourcePortRanges": [],
+              "destinationPortRanges": [],
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          },
+          {
+            "name": "DenyAllOutBound",
+            "properties": {
+              "provisioningState": "Succeeded",
+              "description": "Deny all outbound traffic",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Deny",
+              "priority": 65500,
+              "direction": "Outbound",
+              "sourcePortRanges": [],
+              "destinationPortRanges": [],
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          }
+        ]
+      },
+      "dependsOn": []
+    },
+
+    {
+      "comments": "Public IP (PIP) for Windows JumpHost #1",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "sku": {
+        "name": "Basic",
+        "tier": "Regional"
+      },
+      "name": "[concat('PIP_', parameters('winJmphostVmNamePrefix'), '0', copyIndex(1))]",
+      "apiVersion": "2018-02-01",
+      "location": "[resourceGroup().location]",
+      "tags": "[parameters('tagValues')]",
+      "copy": {
+        "name": "winjmphostcopy",
+        "count": "[parameters('winJumpHosts')]"
+      },
+      "scale": null,
+      "properties": {
+        "provisioningState": "Succeeded",
+        "publicIPAddressVersion": "IPv4",
+        "publicIPAllocationMethod": "Static",
+        "idleTimeoutInMinutes": 4,
+        "dnsSettings": {
+          "domainNameLabel": "[concat(toLower(parameters('winJmphostVmNamePrefix')), '0', copyIndex(1))]",
+          "fqdn": "[concat(toLower(parameters('winJmphostVmNamePrefix')), '0', copyIndex(1), '.[resourceGroup().location].cloudapp.azure.com')]"
+        },
+        "ipTags": []
+      },
+      "dependsOn": []
+    },
+    {
+      "comments": "Storage account for WIN VMs",
+      "type": "Microsoft.Storage/storageAccounts",
+      "sku": {
+        "name": "Standard_GRS",
+        "tier": "Standard"
+      },
+      "kind": "Storage",
+      "name": "[concat(variables('winVmStorageNamePrefix'), '0', copyIndex(1))]",
+      "apiVersion": "2018-02-01",
+      "location": "[resourceGroup().location]",
+      "tags": "[parameters('tagValues')]",
+      "tags": {},
+      "copy": {
+        "name": "winjmphostcopy",
+        "count": "[parameters('winJumpHosts')]"
+      },
+      "scale": null,
+      "properties": {
+        "networkAcls": {
+          "bypass": "AzureServices",
+          "virtualNetworkRules": [],
+          "ipRules": [],
+          "defaultAction": "Allow"
+        },
+        "supportsHttpsTrafficOnly": false,
+        "encryption": {
+          "services": {
+            "file": {
+              "enabled": true
+            },
+            "blob": {
+              "enabled": true
+            }
+          },
+          "keySource": "Microsoft.Storage"
+        }
+      },
+      "dependsOn": []
+    },
+    {
+      "comments": "Linux Jump-Hosts",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[concat(parameters('linuxJmphostVmNamePrefix'), '0', copyIndex(1))]",
+      "apiVersion": "2017-12-01",
+      "location": "[resourceGroup().location]",
+      "tags": "[parameters('tagValues')]",
+      "copy": {
+        "name": "linuxjmphostcopy",
+        "count": "[parameters('linuxJumpHosts')]"
+      },
+      "scale": null,
+      "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('linuxAvailabilitySetName'))]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[parameters('linuxVmSize')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "OpenLogic",
+            "offer": "CentOS",
+            "sku": "[parameters('LinuxOSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "FromImage"
+          },
+          "dataDisks": [
+            {
+              "diskSizeGB": 10,
+              "lun": 0,
+              "createOption": "Empty"
+            }
+          ]
+        },
+        "osProfile": {
+          "computerName": "[concat(parameters('linuxJmphostVmNamePrefix'), '0', copyIndex(1))]",
+          "adminUsername": "[parameters('linuxJmphostVmUser')]",
+          "adminPassword": "[parameters('linuxJmphostVmPass')]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": false
+          },
+          "secrets": []
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('linuxNicNamePrefix'), '0', copyIndex(1)))]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[concat('https', '://', variables('linuxVmStorageNamePrefix'), '0', copyIndex(1), '.blob.core.windows.net', '/')]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('linuxNicNamePrefix'), '0', copyIndex(1)))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', concat(variables('linuxVmStorageNamePrefix'), '0', copyIndex(1)))]",
+        "[concat('Microsoft.Compute/availabilitySets/', variables('linuxAvailabilitySetName'))]"
+      ]
+    },
+    {
+      "comments": "Network Interface Card (NIC) for Linux Jump-Hosts",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(variables('linuxNicNamePrefix'), '0', copyIndex(1))]",
+      "apiVersion": "2018-02-01",
+      "location": "[resourceGroup().location]",
+      "tags": "[parameters('tagValues')]",
+      "copy": {
+        "name": "linuxjmphostcopy",
+        "count": "[parameters('linuxJumpHosts')]"
+      },
+      "scale": null,
+      "properties": {
+        "provisioningState": "Succeeded",
+        "ipConfigurations": [
+          {
+            "name": "[concat('ipconfig', copyIndex(1))]",
+            "properties": {
+              "provisioningState": "Succeeded",
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat('PIP_', parameters('linuxJmphostVmNamePrefix'), '0', copyIndex(1)))]"
+              },
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('existingHubVnetName'), parameters('existingManagementSubnetName'))]"
+              },
+              "primary": true,
+              "privateIPAddressVersion": "IPv4"
+            }
+          }
+        ],
+        "dnsSettings": {
+          "dnsServers": [],
+          "appliedDnsServers": [],
+          "internalDomainNameSuffix": "[concat(toLower(parameters('linuxJmphostVmNamePrefix')),'.ax.internal.cloudapp.net')]"
+        },
+        "enableAcceleratedNetworking": false,
+        "enableIPForwarding": false,
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('linuxNsgName'))]"
+        },
+        "primary": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', concat('PIP_', parameters('linuxJmphostVmNamePrefix'), '0', copyIndex(1)))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('existingHubVnetName'), parameters('existingManagementSubnetName'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('linuxNsgName'))]"
+      ]
+    },
+    {
+      "comments": "NSG For Linux Jump Hosts",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('linuxNsgName')]",
+      "apiVersion": "2018-02-01",
+      "location": "[resourceGroup().location]",
+      "tags": "[parameters('tagValues')]",
+      "scale": null,
+      "properties": {
+        "provisioningState": "Succeeded",
+        "securityRules": [
+          {
+            "name": "NSG_RULE_INBOUND_SSH",
+            "properties": {
+              "provisioningState": "Succeeded",
+              "description": "Allow inbound SSH",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "22",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1000,
+              "direction": "Inbound",
+              "sourcePortRanges": [],
+              "destinationPortRanges": [],
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          }
+        ],
+        "defaultSecurityRules": [
+          {
+            "name": "AllowVnetInBound",
+            "properties": {
+              "provisioningState": "Succeeded",
+              "description": "Allow inbound traffic from all VMs in VNET",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "VirtualNetwork",
+              "destinationAddressPrefix": "VirtualNetwork",
+              "access": "Allow",
+              "priority": 65000,
+              "direction": "Inbound",
+              "sourcePortRanges": [],
+              "destinationPortRanges": [],
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          },
+          {
+            "name": "AllowAzureLoadBalancerInBound",
+            "properties": {
+              "provisioningState": "Succeeded",
+              "description": "Allow inbound traffic from azure load balancer",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "AzureLoadBalancer",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 65001,
+              "direction": "Inbound",
+              "sourcePortRanges": [],
+              "destinationPortRanges": [],
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          },
+          {
+            "name": "DenyAllInBound",
+            "properties": {
+              "provisioningState": "Succeeded",
+              "description": "Deny all inbound traffic",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Deny",
+              "priority": 65500,
+              "direction": "Inbound",
+              "sourcePortRanges": [],
+              "destinationPortRanges": [],
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          },
+          {
+            "name": "AllowVnetOutBound",
+            "properties": {
+              "provisioningState": "Succeeded",
+              "description": "Allow outbound traffic from all VMs to all VMs in VNET",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "VirtualNetwork",
+              "destinationAddressPrefix": "VirtualNetwork",
+              "access": "Allow",
+              "priority": 65000,
+              "direction": "Outbound",
+              "sourcePortRanges": [],
+              "destinationPortRanges": [],
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          },
+          {
+            "name": "AllowInternetOutBound",
+            "properties": {
+              "provisioningState": "Succeeded",
+              "description": "Allow outbound traffic from all VMs to Internet",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "Internet",
+              "access": "Allow",
+              "priority": 65001,
+              "direction": "Outbound",
+              "sourcePortRanges": [],
+              "destinationPortRanges": [],
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          },
+          {
+            "name": "DenyAllOutBound",
+            "properties": {
+              "provisioningState": "Succeeded",
+              "description": "Deny all outbound traffic",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Deny",
+              "priority": 65500,
+              "direction": "Outbound",
+              "sourcePortRanges": [],
+              "destinationPortRanges": [],
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          }
+        ]
+      },
+      "dependsOn": []
+    },
+    {
+      "comments": "Public IP (PIP) for Linux Jump-Hosts",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "sku": {
+        "name": "Basic",
+        "tier": "Regional"
+      },
+      "name": "[concat('PIP_', parameters('linuxJmphostVmNamePrefix'), '0', copyIndex(1))]",
+      "apiVersion": "2018-02-01",
+      "location": "[resourceGroup().location]",
+      "tags": "[parameters('tagValues')]",
+      "copy": {
+        "name": "linuxjmphostcopy",
+        "count": "[parameters('linuxJumpHosts')]"
+      },
+      "scale": null,
+      "properties": {
+        "provisioningState": "Succeeded",
+        "publicIPAddressVersion": "IPv4",
+        "publicIPAllocationMethod": "Static",
+        "idleTimeoutInMinutes": 4,
+        "dnsSettings": {
+          "domainNameLabel": "[concat(toLower(parameters('linuxJmphostVmNamePrefix')), '0', copyIndex(1))]",
+          "fqdn": "[concat(toLower(parameters('linuxJmphostVmNamePrefix')), '0', copyIndex(1), '.[resourceGroup().location].cloudapp.azure.com')]"
+        },
+        "ipTags": []
+      },
+      "dependsOn": []
+    },
+    {
+      "comments": "Storage account for Linux VMs",
+      "type": "Microsoft.Storage/storageAccounts",
+      "sku": {
+        "name": "Standard_GRS",
+        "tier": "Standard"
+      },
+      "kind": "Storage",
+      "name": "[concat(variables('linuxVmStorageNamePrefix'), '0', copyIndex(1))]",
+      "apiVersion": "2018-02-01",
+      "location": "[resourceGroup().location]",
+      "tags": "[parameters('tagValues')]",
+      "tags": {},
+      "copy": {
+        "name": "linuxjmphostcopy",
+        "count": "[parameters('linuxJumpHosts')]"
+      },
+      "scale": null,
+      "properties": {
+        "networkAcls": {
+          "bypass": "AzureServices",
+          "virtualNetworkRules": [],
+          "ipRules": [],
+          "defaultAction": "Allow"
+        },
+        "supportsHttpsTrafficOnly": false,
+        "encryption": {
+          "services": {
+            "file": {
+              "enabled": true
+            },
+            "blob": {
+              "enabled": true
+            }
+          },
+          "keySource": "Microsoft.Storage"
+        }
+      },
+      "dependsOn": []
+    }
+  ],
+  "outputs": {}
+}
