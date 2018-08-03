@@ -7,7 +7,7 @@
       "metadata": {
         "description": "Must match the name of the Resource Group used for the HUB VNet"
       }
-    }
+    },
     "existingHubVnetName": {
       "type": "String",
       "metadata": {
