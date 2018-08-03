@@ -23,7 +23,7 @@
   },
   "resources": [
     {
-      "name": "",
+      "name": "Gateway Subnet",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2018-02-01",
       "resourceGroup": "[parameters('existingHubVnetNameResourceGroup')]",
