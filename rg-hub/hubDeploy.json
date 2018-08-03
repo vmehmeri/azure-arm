@@ -2,6 +2,22 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "existingHubVnetResourceGroup": {
+      "defaultValue": "RG-HUB-VNET",
+      "type": "String"
+    },
+    "existingHubJumphostsResourceGroup": {
+      "defaultValue": "RG-HUB-JUMPHOSTS",
+      "type": "String"
+    },
+    "existingHubGatewayResourceGroup": {
+      "defaultValue": "RG-HUB-GATEWAY",
+      "type": "String"
+    },
+    "existingHubFirewallResourceGroup": {
+      "defaultValue": "RG-HUB-FIREWALL",
+      "type": "String"
+    },
     "hubVnetName": {
       "defaultValue": "VNet_HUB",
       "type": "String"
@@ -25,6 +41,13 @@
     "subnetSharedPrefix": {
       "type": "string",
       "defaultValue": "10.124.4.0/22"
+    },
+    "gatewayName": {
+      "type": "string"
+    },
+    "gatewaySubnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.124.15.224/27"
     },
     "winJumpHosts": {
       "defaultValue": 2,
@@ -192,13 +215,15 @@
   },
   "variables": {
     "hubVnetTemplateURI": "https://raw.githubusercontent.com/vmehmeri/azure-arm/master/rg-hub/nestedtemplates/hubVnetDeploy.json",
-    "hubJumpHostsTemplateURI": "https://raw.githubusercontent.com/vmehmeri/azure-arm/master/rg-hub/nestedtemplates/hubJumpHostsDeploy.json"
+    "hubJumpHostsTemplateURI": "https://raw.githubusercontent.com/vmehmeri/azure-arm/master/rg-hub/nestedtemplates/hubJumpHostsDeploy.json",
+    "hubGatewayTemplateURI": "https://raw.githubusercontent.com/vmehmeri/azure-arm/master/rg-hub/nestedtemplates/hubGatewayDeploy.json"
   },
   "resources": [
     {
       "apiVersion": "2018-02-01",
       "name": "hubVnetTemplate",
       "type": "Microsoft.Resources/deployments",
+      "resourceGroup": "[parameters('existingHubVnetResourceGroup')]",
       "properties": {
         "mode": "incremental",
         "templateLink": {
@@ -223,6 +248,7 @@
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'hubVnetTemplate')]"
       ],
+      "resourceGroup": "[parameters('existingHubJumphostsResourceGroup')]",
       "properties": {
         "mode": "incremental",
         "templateLink": {
@@ -230,6 +256,7 @@
           "uri": "[variables('hubJumpHostsTemplateURI')]"
         },
         "parameters": {
+          "existingHubVnetResourceGroup": { "value": "[parameters('existingHubVnetResourceGroup')]" },
           "existingHubVnetName": { "value": "[parameters('hubVnetName')]" },
           "existingManagementSubnetName": { "value": "[parameters('subnetManagementName')]" },
           "tagValues": { "value": "[parameters('hubJumpHostsTagValues')]" },
@@ -245,6 +272,28 @@
           "linuxVmSize": { "value": "[parameters('linuxVmSize')]" },
           "linuxJmphostVmUser": { "value": "[parameters('linuxJmphostVmUser')]" },
           "linuxJmphostVmPass": { "value": "[parameters('linuxJmphostVmPass')]" }
+        }
+      }
+    },
+    {
+      "apiVersion": "2018-02-01",
+      "name": "hubGatewayTemplate",
+      "type": "Microsoft.Resources/deployments",
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'hubVnetTemplate')]"
+      ],
+      "resourceGroup": "[parameters('existingHubGatewayResourceGroup')]",
+      "properties": {
+        "mode": "incremental",
+        "templateLink": {
+          "contentVersion": "1.0.0.0",
+          "uri": "[variables('hubGatewayTemplateURI')]"
+        },
+        "parameters": {
+          "existingHubVnetResourceGroup": { "value": "[parameters('existingHubVnetResourceGroup')]" },
+          "existingHubVnetName": { "value": "[parameters('hubVnetName')]" },
+          "gatewayName": { "value": "[parameters('gatewayName')]" },
+          "gatewaySubnetPrefix": { "value": "[parameters('gatewaySubnetPrefix')]" }
         }
       }
     }

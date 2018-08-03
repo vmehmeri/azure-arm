@@ -2,11 +2,23 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "existingHubVnetResourceGroup": {
+      "type": "String",
+      "metadata": {
+        "description": "Must match the name of the Resource Group used for the HUB VNet"
+      }
+    }
     "existingHubVnetName": {
-      "type": "String"
+      "type": "String",
+      "metadata": {
+        "description": "The name of the existing HUB VNet"
+      }
     },
     "existingManagementSubnetName": {
-      "type": "String"
+      "type": "String",
+      "metadata": {
+        "description": "The name of the existing Management Subnet in the HUB VNet"
+      }
     },
     "winJumpHosts": {
       "defaultValue": 2,
@@ -295,7 +307,7 @@
                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat('PIP_', parameters('winJmphostVmNamePrefix'), '0', copyIndex(1)))]"
               },
               "subnet": {
-                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('existingHubVnetName'), parameters('existingManagementSubnetName'))]"
+                "id": "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('existingHubVnetName'), parameters('existingManagementSubnetName'))]"
               },
               "primary": true,
               "privateIPAddressVersion": "IPv4"
@@ -629,7 +641,7 @@
                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat('PIP_', parameters('linuxJmphostVmNamePrefix'), '0', copyIndex(1)))]"
               },
               "subnet": {
-                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('existingHubVnetName'), parameters('existingManagementSubnetName'))]"
+                "id": "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('existingHubVnetName'), parameters('existingManagementSubnetName'))]"
               },
               "primary": true,
               "privateIPAddressVersion": "IPv4"

@@ -2,24 +2,14 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "existingHubVnet": {
+    "existingHubVnetNameResourceGroup": {
+      "type": "String"
+    },
+    "existingHubVnetName": {
       "type": "String"
     },
     "gatewayName": {
       "type": "string"
-    },
-    "gatewaySku": {
-      "type": "string",
-      "defaultValue": "Basic",
-      "allowedValues": [
-        "Basic",
-        "VpnGw1",
-        "VpnGw2",
-        "VpnGw3"
-      ],
-      "metadata": {
-        "description": "The Sku of the Gateway. This must be one of Basic, Standard or HighPerformance."
-      }
     },
     "gatewaySubnetPrefix": {
       "type": "string",
@@ -28,10 +18,31 @@
   },
   "variables": {
     "subnetGatewayName": "GatewaySubnet",
-    "subnetGatewayPrefix": "10.124.15.224/27",
-    "subnetGatewayId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('existingHubVnet'), variables('subnetGatewayName'))]",
+    "subnetGatewayId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('existingHubVnetName'), variables('subnetGatewayName'))]",
     "gatewayPIPName": "[concat('PIP_', parameters('gatewayName'))]"
   },
-  "resources": [],
+  "resources": [
+    {
+      "comments": "Gateway Subnet",
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "resourceGroup": "[parameters('existingHubVnetNameResourceGroup')]",
+      "name": "[concat(parameters('existingHubVnetName'), '/', variables('subnetGatewayName'))]",
+      "apiVersion": "2018-02-01",
+      "scale": null,
+      "properties": {
+        "addressPrefix": "[parameters('gatewaySubnetPrefix')]",
+        "serviceEndpoints": []
+      }
+    },
+    {
+      "apiVersion": "2018-02-01",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('gatewayPIPName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic"
+      }
+    }
+  ],
   "outputs": {}
 }
