@@ -246,7 +246,7 @@
       "name": "hubJumpHostsTemplate",
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'hubVnetTemplate')]"
+        "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Resources/deployments', 'hubVnetTemplate')]"
       ],
       "resourceGroup": "[parameters('existingHubJumphostsResourceGroup')]",
       "properties": {
@@ -280,7 +280,7 @@
       "name": "hubGatewayTemplate",
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'hubVnetTemplate')]"
+        "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Resources/deployments', 'hubVnetTemplate')]"
       ],
       "resourceGroup": "[parameters('existingHubGatewayResourceGroup')]",
       "properties": {

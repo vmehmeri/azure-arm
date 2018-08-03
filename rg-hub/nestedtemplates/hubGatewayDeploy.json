@@ -23,15 +23,31 @@
   },
   "resources": [
     {
-      "comments": "Gateway Subnet",
-      "type": "Microsoft.Network/virtualNetworks/subnets",
-      "resourceGroup": "[parameters('existingHubVnetNameResourceGroup')]",
-      "name": "[concat(parameters('existingHubVnetName'), '/', variables('subnetGatewayName'))]",
+      "name": "",
+      "type": "Microsoft.Resources/deployments",
       "apiVersion": "2018-02-01",
-      "scale": null,
+      "resourceGroup": "[parameters('existingHubVnetNameResourceGroup')]",
       "properties": {
-        "addressPrefix": "[parameters('gatewaySubnetPrefix')]",
-        "serviceEndpoints": []
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {},
+          "variables": {},
+          "resources": [
+            {
+              "comments": "Gateway Subnet",
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "name": "[concat(parameters('existingHubVnetName'), '/', variables('subnetGatewayName'))]",
+              "apiVersion": "2018-02-01",
+              "scale": null,
+              "properties": {
+                "addressPrefix": "[parameters('gatewaySubnetPrefix')]",
+                "serviceEndpoints": []
+              }
+            }
+          ]
+        }
       }
     },
     {
@@ -44,5 +60,5 @@
       }
     }
   ],
-  "outputs": {}
+    "outputs": {}
 }
