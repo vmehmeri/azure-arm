@@ -42,8 +42,17 @@
       "type": "string",
       "defaultValue": "10.124.4.0/22"
     },
+    "firewallName": {
+      "type": "string",
+      "defaultValue": "FW-HUB-Outbound"
+    },
+    "firewallSubnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.124.0.0/25"
+    },
     "gatewayName": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "GW-HUB-Vpn"
     },
     "gatewaySubnetPrefix": {
       "type": "string",
@@ -140,14 +149,14 @@
     },
     "LinuxOSVersion": {
       "type": "string",
-      "defaultValue": "7.5",
+      "defaultValue": "7.4",
       "allowedValues": [
+        "7.2",
         "7.3",
-        "7.4",
-        "7.5"
+        "7.4"
       ],
       "metadata": {
-        "description": "The CentOS version for Linux Jump-host VMs"
+        "description": "The RHEL version for Linux Jump-host VMs"
       }
     },
     "linuxVmSize": {
@@ -216,6 +225,7 @@
   "variables": {
     "hubVnetTemplateURI": "https://raw.githubusercontent.com/vmehmeri/azure-arm/master/rg-hub/nestedtemplates/hubVnetDeploy.json",
     "hubJumpHostsTemplateURI": "https://raw.githubusercontent.com/vmehmeri/azure-arm/master/rg-hub/nestedtemplates/hubJumpHostsDeploy.json",
+    "hubFirewallTemplateURI": "https://raw.githubusercontent.com/vmehmeri/azure-arm/master/rg-hub/nestedtemplates/hubFirewallDeploy.json",
     "hubGatewayTemplateURI": "https://raw.githubusercontent.com/vmehmeri/azure-arm/master/rg-hub/nestedtemplates/hubGatewayDeploy.json"
   },
   "resources": [
@@ -272,6 +282,28 @@
           "linuxVmSize": { "value": "[parameters('linuxVmSize')]" },
           "linuxJmphostVmUser": { "value": "[parameters('linuxJmphostVmUser')]" },
           "linuxJmphostVmPass": { "value": "[parameters('linuxJmphostVmPass')]" }
+        }
+      }
+    },
+    {
+      "apiVersion": "2018-02-01",
+      "name": "hubFirewallTemplate",
+      "type": "Microsoft.Resources/deployments",
+      "dependsOn": [
+        "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Resources/deployments', 'hubVnetTemplate')]"
+      ],
+      "resourceGroup": "[parameters('existingHubFirewallResourceGroup')]",
+      "properties": {
+        "mode": "incremental",
+        "templateLink": {
+          "contentVersion": "1.0.0.0",
+          "uri": "[variables('hubFirewallTemplateURI')]"
+        },
+        "parameters": {
+          "existingHubVnetResourceGroup": { "value": "[parameters('existingHubVnetResourceGroup')]" },
+          "existingHubVnetName": { "value": "[parameters('hubVnetName')]" },
+          "firewallName": { "value": "[parameters('firewallName')]" },
+          "firewallSubnetPrefix": { "value": "[parameters('firewallSubnetPrefix')]" }
         }
       }
     },

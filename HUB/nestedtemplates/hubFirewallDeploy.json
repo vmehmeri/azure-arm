@@ -1,0 +1,92 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "existingHubVnetResourceGroup": {
+      "type": "String"
+    },
+    "existingHubVnetName": {
+      "type": "String"
+    },
+    "firewallName": {
+      "type": "String"
+    },
+    "firewallSubnetPrefix": {
+      "type": "String"
+    }
+  },
+  "variables": {
+    "firewallSubnetName": "AzureFirewallSubnet",
+    "firewallPIPName": "[concat('PIP_', parameters('firewallName'))]",
+    "azureFirewallSubnetId": "[resourceId(parameters('existingHubVnetResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('existingHubVnetName'), variables('firewallSubnetName'))]",
+    "azureFirewallPublicIpId": "[resourceId('Microsoft.Network/publicIPAddresses',variables('firewallPIPName'))]"
+  },
+  "resources": [
+    {
+      "name": "Azure Firewall Subnet Deployment",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2018-02-01",
+      "resourceGroup": "[parameters('existingHubVnetResourceGroup')]",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {},
+          "variables": {},
+          "resources": [
+            {
+              "comments": "Azure Firewall Subnet",
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "name": "[concat(parameters('existingHubVnetName'), '/', variables('firewallSubnetName'))]",
+              "apiVersion": "2018-02-01",
+              "scale": null,
+              "properties": {
+                "addressPrefix": "[parameters('firewallSubnetPrefix')]",
+                "serviceEndpoints": []
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "[variables('firewallPIPName')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2017-10-01",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Static",
+        "publicIPAddressVersion": "IPv4"
+      }
+    },
+    {
+      "apiVersion": "2018-06-01",
+      "type": "Microsoft.Network/azureFirewalls",
+      "name": "[parameters('firewallName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('firewallPIPName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "IpConf",
+            "properties": {
+              "subnet": {
+                "id": "[variables('azureFirewallSubnetId')]"
+              },
+              "InternalPublicIPAddress": {
+                "id": "[variables('azureFirewallPublicIpId')]"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {}
+}
