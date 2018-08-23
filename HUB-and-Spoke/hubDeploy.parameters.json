@@ -1,0 +1,94 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "existingHubVnetResourceGroup": {
+      "value": "RG-HUB-VNET"
+    },
+    "existingHubJumphostsResourceGroup": {
+      "value": "RG-HUB-JUMPHOSTS"
+    },
+    "existingHubGatewayResourceGroup": {
+      "value": "RG-HUB-GATEWAY"
+    },
+    "existingHubFirewallResourceGroup": {
+      "value": "RG-HUB-FIREWALL"
+    },
+    "hubVnetName": {
+      "value": "VNet_HUB"
+    },
+    "hubVnetPrefix": {
+      "value": "10.124.0.0/20"
+    },
+    "subnetManagementName": {
+      "value": "ManagementSubnet"
+    },
+    "subnetManagementPrefix": {
+      "value": "10.124.1.0/24"
+    },
+    "subnetSharedName": {
+      "value": "SharedSubnet"
+    },
+    "subnetSharedPrefix": {
+      "value": "10.124.4.0/22"
+    },
+    "firewallName": {
+      "value": "FW-HUB-Outbound"
+    },
+    "firewallSubnetPrefix": {
+      "value": "10.124.0.0/25"
+    },
+    "gatewayName": {
+      "value": "GW-HUB-Vpn"
+    },
+    "gatewaySubnetPrefix": {
+      "value": "10.124.15.224/27"
+    },
+    "winJumpHosts": {
+      "value": 1
+    },
+    "winJmphostVmNamePrefix": {
+      "value": "VM_HUBJMPWIN"
+    },
+    "windowsOSVersion": {
+      "value": "2016-Datacenter"
+    },
+    "winVmSize": {
+      "value": "Standard_D3_v2"
+    },
+    "winJmphostVmUser": {
+      "value": "WinAdmin"
+    },
+    "winJmphostVmPass": {
+      "value": "winP@ssword01!"
+    },
+    "linuxJumpHosts": {
+      "value": 1
+    },
+    "linuxJmphostVmNamePrefix": {
+      "value": "VM_HUBJMPLNX"
+    },
+    "LinuxOSVersion": {
+      "value": "7.4"
+    },
+    "linuxVmSize": {
+      "value": "Standard_D1_v2"
+    },
+    "linuxJmphostVmUser": {
+      "value": "LinuxAdmin"
+    },
+    "linuxJmphostVmPass": {
+      "value": "lnxP@ssword01!"
+    },
+    "hubVnetTagValues": {
+      "value": {
+        "owner": "v.dantas.mehmeri@accenture.com"
+      }
+    },
+    "hubJumpHostsTagValues": {
+      "value": {
+        "owner": "v.dantas.mehmeri@accenture.com"
+      }
+    }
+  }
+}

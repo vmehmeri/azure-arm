@@ -1,0 +1,171 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "hubVnetName": {
+      "defaultValue": "VNet_HUB",
+      "type": "String"
+    },
+    "hubVnetPrefix": {
+      "defaultValue": "10.124.0.0/20",
+      "type": "String"
+    },
+    "subnetGoepPrdManagementName": {
+      "type": "string",
+      "defaultValue": "GOE-PRD-ManagementSubnet"
+    },
+    "subnetGoepPrdManagementPrefix": {
+      "type": "string",
+      "defaultValue": "10.124.1.0/25"
+    },
+    "subnetAppPrdManagementName": {
+      "type": "string",
+      "defaultValue": "APP-PRD-ManagementSubnet"
+    },
+    "subnetAppPrdManagementPrefix": {
+      "type": "string",
+      "defaultValue": "10.124.1.129/25"
+    },
+    "subnetGoepNprManagementName": {
+      "type": "string",
+      "defaultValue": "GOE-NPR-ManagementSubnet"
+    },
+    "subnetGoepNprManagementPrefix": {
+      "type": "string",
+      "defaultValue": "10.124.2.0/25"
+    },
+    "subnetAppNprManagementName": {
+      "type": "string",
+      "defaultValue": "APP-NPR-ManagementSubnet"
+    },
+    "subnetAppNprManagementPrefix": {
+      "type": "string",
+      "defaultValue": "10.124.2.129/25"
+    },
+    "subnetSharedName": {
+      "type": "string",
+      "defaultValue": "SharedSubnet"
+    },
+    "subnetSharedPrefix": {
+      "type": "string",
+      "defaultValue": "10.124.4.0/22"
+    },
+    "tagValues": {
+      "type": "object",
+      "defaultValue": {
+        "owner": "v.dantas.mehmeri@accenture.com"
+      }
+    }
+  },
+  "variables": {
+  },
+  "resources": [
+    {
+      "comments": "HUB Virtual Network (VNet)",
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[parameters('hubVnetName')]",
+      "apiVersion": "2018-02-01",
+      "location": "[resourceGroup().location]",
+      "tags": "[parameters('tagValues')]",
+      "scale": null,
+      "properties": {
+        "provisioningState": "Succeeded",
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('hubVnetPrefix')]"
+          ]
+        },
+        "dhcpOptions": {
+          "dnsServers": []
+        },
+        "virtualNetworkPeerings": [],
+        "enableDdosProtection": false,
+        "enableVmProtection": false
+      },
+      "dependsOn": []
+    },
+    {
+      "comments": "GOEP Production Management Subnet",
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "name": "[concat(parameters('hubVnetName'), '/', parameters('subnetGoepPrdManagementName'))]",
+      "apiVersion": "2018-02-01",
+      "scale": null,
+      "properties": {
+        "provisioningState": "Succeeded",
+        "addressPrefix": "[parameters('subnetGoepPrdManagementPrefix')]",
+        "serviceEndpoints": []
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubVnetName'))]"
+      ]
+    },
+    {
+      "comments": "APPEASER Production Management Subnet",
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "name": "[concat(parameters('hubVnetName'), '/', parameters('subnetAppPrdManagementName'))]",
+      "apiVersion": "2018-02-01",
+      "scale": null,
+      "properties": {
+        "provisioningState": "Succeeded",
+        "addressPrefix": "[parameters('subnetAppPrdManagementPrefix')]",
+        "serviceEndpoints": []
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubVnetName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('hubVnetName'), parameters('subnetGoepPrdManagementName'))]"
+      ]
+    },
+    {
+      "comments": "GOEP Non-Production Management Subnet",
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "name": "[concat(parameters('hubVnetName'), '/', parameters('subnetGoepNprManagementName'))]",
+      "apiVersion": "2018-02-01",
+      "scale": null,
+      "properties": {
+        "provisioningState": "Succeeded",
+        "addressPrefix": "[parameters('subnetGoepNprManagementPrefix')]",
+        "serviceEndpoints": []
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubVnetName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('hubVnetName'), parameters('subnetGoepPrdManagementName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('hubVnetName'), parameters('subnetAppPrdManagementName'))]"
+      ]
+    },
+    {
+      "comments": "APPEASER Non-Production Management Subnet",
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "name": "[concat(parameters('hubVnetName'), '/', parameters('subnetAppNprManagementName'))]",
+      "apiVersion": "2018-02-01",
+      "scale": null,
+      "properties": {
+        "provisioningState": "Succeeded",
+        "addressPrefix": "[parameters('subnetAppNprManagementPrefix')]",
+        "serviceEndpoints": []
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubVnetName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('hubVnetName'), parameters('subnetGoepPrdManagementName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('hubVnetName'), parameters('subnetAppPrdManagementName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('hubVnetName'), parameters('subnetGoepNprManagementName'))]"
+      ]
+    },
+    {
+      "comments": "Shared Subnet",
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "name": "[concat(parameters('hubVnetName'), '/', parameters('subnetSharedName'))]",
+      "apiVersion": "2018-02-01",
+      "scale": null,
+      "properties": {
+        "provisioningState": "Succeeded",
+        "addressPrefix": "[parameters('subnetSharedPrefix')]",
+        "serviceEndpoints": []
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubVnetName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('hubVnetName'), parameters('subnetManagementName'))]"
+      ]
+    }
+  ],
+  "outputs": {}
+}

@@ -17,7 +17,7 @@
   },
   "variables": {
     "firewallSubnetName": "AzureFirewallSubnet",
-    "firewallPIPName": "[concat('PIP_', parameters('firewallName'))]",
+    "firewallPIPName": "[concat(parameters('firewallName'), '-pip')]",
     "azureFirewallSubnetId": "[resourceId(parameters('existingHubVnetResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('existingHubVnetName'), variables('firewallSubnetName'))]",
     "azureFirewallPublicIpId": "[resourceId('Microsoft.Network/publicIPAddresses',variables('firewallPIPName'))]"
   },

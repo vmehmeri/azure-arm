@@ -84,14 +84,14 @@
         "description": "Size for Windows jump-host VMs"
       }
     },
-    "winJmphostVmUser": {
+    "winJmphostVmAdminUser": {
       "type": "string",
       "defaultValue": "WinAdmin",
       "metadata": {
         "description": "Username for Windows jump-host VMs"
       }
     },
-    "winJmphostVmPass": {
+    "winJmphostVmAdminPass": {
       "type": "securestring",
       "metadata": {
         "description": "Password for Windows jump-host VMs"
@@ -158,14 +158,14 @@
         "description": "Size for Linux jump-host VMs"
       }
     },
-    "linuxJmphostVmUser": {
+    "linuxJmphostVmAdminUser": {
       "type": "string",
       "defaultValue": "LinuxAdmin",
       "metadata": {
         "description": "Username for Linux jump-host VMs"
       }
     },
-    "linuxJmphostVmPass": {
+    "linuxJmphostVmAdminPass": {
       "type": "securestring",
       "metadata": {
         "description": "Password for Linux jump-host VMs"
@@ -179,16 +179,16 @@
     }
   },
   "variables": {
-    "winAvailabilitySetName": "AVSET_HUB_WINJHOSTS",
-    "linuxAvailabilitySetName": "AVSET_HUB_LINUXJHOSTS",
-    "winNicNamePrefix": "[concat('NIC_', parameters('winJmphostVmNamePrefix'))]",
-    "linuxNicNamePrefix": "[concat('NIC_', parameters('linuxJmphostVmNamePrefix'))]",
+    "winAvailabilitySetName": "[concat(parameters('winJmphostVmNamePrefix'), '-as')]",
+    "linuxAvailabilitySetName": "[concat(parameters('linuxJmphostVmNamePrefix'), '-as')]",
+    "winNicNamePrefix": "[concat(parameters('winJmphostVmNamePrefix'), '-nic01')]",
+    "linuxNicNamePrefix": "[concat(parameters('linuxJmphostVmNamePrefix'), '-nic01')]",
     "winVmStorageNamePrefix": "[concat(toLower('vmstorage'), toLower(parameters('winJmphostVmNamePrefix')))]",
     "linuxVmStorageNamePrefix": "[concat(toLower('vmstorage'), toLower(parameters('linuxJmphostVmNamePrefix')))]",
-    "winNsgName": "NSG_WIN_JMPHOST",
-    "winNsgRuleName": "NSG_RULE_INBOUND_RDP",
-    "linuxNsgName": "NSG_LINUX_JMPHOST",
-    "linuxNsgRuleName": "NSG_RULE_INBOUND_SSH"
+    "winNsgName": "INFWJH-nsg",
+    "winNsgRuleName": "RDP-allow",
+    "linuxNsgName": "INFJMP-nsg",
+    "linuxNsgRuleName": "SSH-allow"
   },
   "resources": [
     {
@@ -256,8 +256,8 @@
         },
         "osProfile": {
           "computerName": "[concat(parameters('winJmphostVmNamePrefix'), '0', copyIndex(1))]",
-          "adminUsername": "[parameters('winJmphostVmUser')]",
-          "adminPassword": "[parameters('winJmphostVmPass')]",
+          "adminUsername": "[parameters('winJmphostVmAdminUser')]",
+          "adminPassword": "[parameters('winJmphostVmAdminPass')]",
           "windowsConfiguration": {
             "provisionVMAgent": true
           },
@@ -590,8 +590,8 @@
         },
         "osProfile": {
           "computerName": "[concat(parameters('linuxJmphostVmNamePrefix'), '0', copyIndex(1))]",
-          "adminUsername": "[parameters('linuxJmphostVmUser')]",
-          "adminPassword": "[parameters('linuxJmphostVmPass')]",
+          "adminUsername": "[parameters('linuxJmphostVmAdminUser')]",
+          "adminPassword": "[parameters('linuxJmphostVmAdminPass')]",
           "linuxConfiguration": {
             "disablePasswordAuthentication": false
           },
