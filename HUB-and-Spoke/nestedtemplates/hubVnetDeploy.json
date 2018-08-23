@@ -24,7 +24,7 @@
     },
     "subnetAppPrdManagementPrefix": {
       "type": "string",
-      "defaultValue": "10.124.1.129/25"
+      "defaultValue": "10.124.1.128/25"
     },
     "subnetGoepNprManagementName": {
       "type": "string",
@@ -40,7 +40,7 @@
     },
     "subnetAppNprManagementPrefix": {
       "type": "string",
-      "defaultValue": "10.124.2.129/25"
+      "defaultValue": "10.124.2.128/25"
     },
     "subnetSharedName": {
       "type": "string",
