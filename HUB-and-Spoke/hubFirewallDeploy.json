@@ -1,0 +1,22 @@
+{
+  "apiVersion": "2018-02-01",
+  "name": "hubFirewallTemplate",
+  "type": "Microsoft.Resources/deployments",
+  "dependsOn": [
+    "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Resources/deployments', 'hubVnetTemplate')]"
+  ],
+  "resourceGroup": "[parameters('existingHubFirewallResourceGroup')]",
+  "properties": {
+    "mode": "incremental",
+    "templateLink": {
+      "contentVersion": "1.0.0.0",
+      "uri": "[variables('hubFirewallTemplateURI')]"
+    },
+    "parameters": {
+      "existingHubVnetResourceGroup": { "value": "[parameters('existingHubVnetResourceGroup')]" },
+      "existingHubVnetName": { "value": "[parameters('hubVnetName')]" },
+      "firewallName": { "value": "[parameters('firewallName')]" },
+      "firewallSubnetPrefix": { "value": "[parameters('firewallSubnetPrefix')]" }
+    }
+  }
+}

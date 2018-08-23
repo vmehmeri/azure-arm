@@ -415,7 +415,7 @@
       "name": "hubGoepProductionJumpHosts",
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
-        "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Resources/deployments', 'hubVnetTemplate')]"
+        "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Resources/deployments', 'hubNetwork')]"
       ],
       "resourceGroup": "[parameters('existingGoepProdHubJumphostsResourceGroup')]",
       "properties": {
@@ -449,7 +449,7 @@
       "name": "hubAppProductionJumpHosts",
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
-        "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Resources/deployments', 'hubVnetTemplate')]"
+        "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Resources/deployments', 'hubNetwork')]"
       ],
       "resourceGroup": "[parameters('existingAppProdHubJumphostsResourceGroup')]",
       "properties": {
@@ -483,7 +483,7 @@
       "name": "hubGoepNonProductionJumpHosts",
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
-        "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Resources/deployments', 'hubVnetTemplate')]"
+        "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Resources/deployments', 'hubNetwork')]"
       ],
       "resourceGroup": "[parameters('existingGoepNonProdHubJumphostsResourceGroup')]",
       "properties": {
@@ -517,7 +517,7 @@
       "name": "hubAppNonProductionJumpHosts",
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
-        "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Resources/deployments', 'hubVnetTemplate')]"
+        "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Resources/deployments', 'hubNetwork')]"
       ],
       "resourceGroup": "[parameters('existingAppNonProdHubJumphostsResourceGroup')]",
       "properties": {
@@ -543,75 +543,6 @@
           "linuxVmSize": { "value": "[parameters('linuxVmSize')]" },
           "linuxJmphostVmAdminUser": { "value": "[parameters('linuxJmphostVmAdminUser')]" },
           "linuxJmphostVmAdminPass": { "value": "[parameters('linuxJmphostVmAdminPass')]" }
-        }
-      }
-    },
-    {
-      "apiVersion": "2018-02-01",
-      "name": "hubFirewallTemplate",
-      "type": "Microsoft.Resources/deployments",
-      "dependsOn": [
-        "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Resources/deployments', 'hubVnetTemplate')]"
-      ],
-      "resourceGroup": "[parameters('existingHubFirewallResourceGroup')]",
-      "properties": {
-        "mode": "incremental",
-        "templateLink": {
-          "contentVersion": "1.0.0.0",
-          "uri": "[variables('hubFirewallTemplateURI')]"
-        },
-        "parameters": {
-          "existingHubVnetResourceGroup": { "value": "[parameters('existingHubVnetResourceGroup')]" },
-          "existingHubVnetName": { "value": "[parameters('hubVnetName')]" },
-          "firewallName": { "value": "[parameters('firewallName')]" },
-          "firewallSubnetPrefix": { "value": "[parameters('firewallSubnetPrefix')]" }
-        }
-      }
-    },
-    {
-      "apiVersion": "2018-02-01",
-      "name": "hubPrdGateway",
-      "type": "Microsoft.Resources/deployments",
-      "dependsOn": [
-        "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Resources/deployments', 'hubVnetTemplate')]"
-      ],
-      "resourceGroup": "[parameters('existingHubGatewayResourceGroup')]",
-      "properties": {
-        "mode": "incremental",
-        "templateLink": {
-          "contentVersion": "1.0.0.0",
-          "uri": "[variables('hubGatewayTemplateURI')]"
-        },
-        "parameters": {
-          "existingHubVnetResourceGroup": { "value": "[parameters('existingHubVnetResourceGroup')]" },
-          "existingHubVnetName": { "value": "[parameters('hubVnetName')]" },
-          "gatewayName": { "value": "[parameters('prdGatewayName')]" },
-          "gatewaySubnetPrefix": { "value": "[parameters('gatewaySubnetPrefix')]" },
-          "gatewaySku": { "value": "[parameters('gatewaySku')]" }
-        }
-      }
-    },
-    {
-      "apiVersion": "2018-02-01",
-      "name": "hubNprGateway",
-      "type": "Microsoft.Resources/deployments",
-      "dependsOn": [
-        "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Resources/deployments', 'hubVnetTemplate')]",
-        "[resourceId(parameters('existingHubGatewayResourceGroup'), 'Microsoft.Resources/deployments', 'hubPrdGateway')]"
-      ],
-      "resourceGroup": "[parameters('existingHubGatewayResourceGroup')]",
-      "properties": {
-        "mode": "incremental",
-        "templateLink": {
-          "contentVersion": "1.0.0.0",
-          "uri": "[variables('hubGatewayTemplateURI')]"
-        },
-        "parameters": {
-          "existingHubVnetResourceGroup": { "value": "[parameters('existingHubVnetResourceGroup')]" },
-          "existingHubVnetName": { "value": "[parameters('hubVnetName')]" },
-          "gatewayName": { "value": "[parameters('nprGatewayName')]" },
-          "gatewaySubnetPrefix": { "value": "[parameters('gatewaySubnetPrefix')]" },
-          "gatewaySku": { "value": "[parameters('gatewaySku')]" }
         }
       }
     }
