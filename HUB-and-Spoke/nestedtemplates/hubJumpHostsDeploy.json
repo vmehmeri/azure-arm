@@ -304,7 +304,7 @@
               "provisioningState": "Succeeded",
               "privateIPAllocationMethod": "Dynamic",
               "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat('PIP_', parameters('winJmphostVmNamePrefix'), '0', copyIndex(1)))]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat(parameters('winJmphostVmNamePrefix'), '0', copyIndex(1), '-pip'))]"
               },
               "subnet": {
                 "id": "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('existingHubVnetName'), parameters('existingManagementSubnetName'))]"
@@ -327,7 +327,7 @@
         "primary": true
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', concat('PIP_', parameters('winJmphostVmNamePrefix'), '0', copyIndex(1)))]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', concat(parameters('winJmphostVmNamePrefix'), '0', copyIndex(1), '-pip'))]",
         "[resourceId('Microsoft.Network/networkSecurityGroups', variables('winNsgName'))]"
       ]
     },
@@ -637,7 +637,7 @@
               "provisioningState": "Succeeded",
               "privateIPAllocationMethod": "Dynamic",
               "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat('PIP_', parameters('linuxJmphostVmNamePrefix'), '0', copyIndex(1)))]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat(parameters('linuxJmphostVmNamePrefix'), '0', copyIndex(1), '-pip'))]"
               },
               "subnet": {
                 "id": "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('existingHubVnetName'), parameters('existingManagementSubnetName'))]"
@@ -660,7 +660,7 @@
         "primary": true
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', concat('PIP_', parameters('linuxJmphostVmNamePrefix'), '0', copyIndex(1)))]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', concat(parameters('linuxJmphostVmNamePrefix'), '0', copyIndex(1), '-pip'))]",
         "[resourceId('Microsoft.Network/networkSecurityGroups', variables('linuxNsgName'))]"
       ]
     },
