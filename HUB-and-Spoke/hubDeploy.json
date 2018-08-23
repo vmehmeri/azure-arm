@@ -22,14 +22,6 @@
       "defaultValue": "APP-HUB-VM-JMPAZRNPREU-rg",
       "type": "String"
     },
-    "existingHubGatewayResourceGroup": {
-      "defaultValue": "CMN-HUB-GW-rg",
-      "type": "String"
-    },
-    "existingHubFirewallResourceGroup": {
-      "defaultValue": "CMN-HUB-FW-rg",
-      "type": "String"
-    },
     "hubVnetName": {
       "defaultValue": "HUB-vnet",
       "type": "String"
@@ -77,39 +69,6 @@
     "subnetSharedPrefix": {
       "type": "string",
       "defaultValue": "10.124.4.0/22"
-    },
-    "firewallName": {
-      "type": "string",
-      "defaultValue": "CMN-HUB-fw"
-    },
-    "firewallSubnetPrefix": {
-      "type": "string",
-      "defaultValue": "10.124.0.0/25"
-    },
-    "prdGatewayName": {
-      "type": "string",
-      "defaultValue": "CMN-HUB-VPN-gw"
-    },
-    "nprGatewayName": {
-      "type": "string",
-      "defaultValue": "CMN-HUB-VPN-gw"
-    },
-    "gatewaySku": {
-      "type": "string",
-      "defaultValue": "VpnGw1",
-      "allowedValues": [
-        "Basic",
-        "VpnGw1",
-        "VpnGw2",
-        "VpnGw3"
-      ],
-      "metadata": {
-        "description": "The SKU of the Gateway, if deployed"
-      }
-    },
-    "gatewaySubnetPrefix": {
-      "type": "string",
-      "defaultValue": "10.124.15.193/26"
     },
     "goepProdWinJumpHosts": {
       "defaultValue": 2,
@@ -380,10 +339,10 @@
     }
   },
   "variables": {
-    "hubVnetTemplateURI": "https://raw.githubusercontent.com/vmehmeri/azure-arm/master/rg-hub/nestedtemplates/hubVnetDeploy.json",
-    "hubJumpHostsTemplateURI": "https://raw.githubusercontent.com/vmehmeri/azure-arm/master/rg-hub/nestedtemplates/hubJumpHostsDeploy.json",
-    "hubFirewallTemplateURI": "https://raw.githubusercontent.com/vmehmeri/azure-arm/master/rg-hub/nestedtemplates/hubFirewallDeploy.json",
-    "hubGatewayTemplateURI": "https://raw.githubusercontent.com/vmehmeri/azure-arm/master/rg-hub/nestedtemplates/hubGatewayDeploy.json"
+    "hubVnetTemplateURI": "https://raw.githubusercontent.com/vmehmeri/azure-arm/master/HUB-and-Spoke/nestedtemplates/hubVnetDeploy.json",
+    "hubJumpHostsTemplateURI": "https://raw.githubusercontent.com/vmehmeri/azure-arm/master/HUB-and-Spoke/nestedtemplates/hubJumpHostsDeploy.json",
+    "hubFirewallTemplateURI": "https://raw.githubusercontent.com/vmehmeri/azure-arm/master/HUB-and-Spoke/nestedtemplates/hubFirewallDeploy.json",
+    "hubGatewayTemplateURI": "https://raw.githubusercontent.com/vmehmeri/azure-arm/master/HUB-and-Spoke/nestedtemplates/hubGatewayDeploy.json"
   },
   "resources": [
     {

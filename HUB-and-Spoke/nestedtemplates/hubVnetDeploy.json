@@ -163,7 +163,10 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubVnetName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('hubVnetName'), parameters('subnetManagementName'))]"
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('hubVnetName'), parameters('subnetGoepPrdManagementName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('hubVnetName'), parameters('subnetAppPrdManagementName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('hubVnetName'), parameters('subnetGoepNprManagementName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('hubVnetName'), parameters('subnetAppNprManagementName'))]"
       ]
     }
   ],

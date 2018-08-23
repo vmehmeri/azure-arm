@@ -183,8 +183,8 @@
     "linuxAvailabilitySetName": "[concat(parameters('linuxJmphostVmNamePrefix'), '-as')]",
     "winNicNamePrefix": "[concat(parameters('winJmphostVmNamePrefix'), '-nic01')]",
     "linuxNicNamePrefix": "[concat(parameters('linuxJmphostVmNamePrefix'), '-nic01')]",
-    "winVmStorageNamePrefix": "[concat(toLower('vmstorage'), toLower(parameters('winJmphostVmNamePrefix')))]",
-    "linuxVmStorageNamePrefix": "[concat(toLower('vmstorage'), toLower(parameters('linuxJmphostVmNamePrefix')))]",
+    "winVmStorageNamePrefix": "[toLower(parameters('winJmphostVmNamePrefix'))]",
+    "linuxVmStorageNamePrefix": "[toLower(parameters('linuxJmphostVmNamePrefix'))]",
     "winNsgName": "INFWJH-nsg",
     "winNsgRuleName": "RDP-allow",
     "linuxNsgName": "INFJMP-nsg",
@@ -273,13 +273,13 @@
         "diagnosticsProfile": {
           "bootDiagnostics": {
             "enabled": true,
-            "storageUri": "[concat('https', '://', variables('winVmStorageNamePrefix'), '0', copyIndex(1), '.blob.core.windows.net', '/')]"
+            "storageUri": "[concat('https', '://', variables('winVmStorageNamePrefix'), '0', copyIndex(1), 'st0', 'copyIndex(1)', '.blob.core.windows.net')]"
           }
         }
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('winNicNamePrefix'), '0', copyIndex(1)))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', concat(variables('winVmStorageNamePrefix'), '0', copyIndex(1)))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', concat(variables('winVmStorageNamePrefix'), '0', copyIndex(1), 'st0', 'copyIndex(1)'))]",
         "[concat('Microsoft.Compute/availabilitySets/', variables('winAvailabilitySetName'))]"
       ]
     },
@@ -519,7 +519,7 @@
         "tier": "Standard"
       },
       "kind": "Storage",
-      "name": "[concat(variables('winVmStorageNamePrefix'), '0', copyIndex(1))]",
+      "name": "[concat(variables('winVmStorageNamePrefix'), '0', copyIndex(1), 'st0', 'copyIndex(1)')]",
       "apiVersion": "2018-02-01",
       "location": "[resourceGroup().location]",
       "tags": "[parameters('tagValues')]",
@@ -607,13 +607,13 @@
         "diagnosticsProfile": {
           "bootDiagnostics": {
             "enabled": true,
-            "storageUri": "[concat('https', '://', variables('linuxVmStorageNamePrefix'), '0', copyIndex(1), '.blob.core.windows.net', '/')]"
+            "storageUri": "[concat('https', '://', variables('linuxVmStorageNamePrefix'), '0', copyIndex(1), 'st0', 'copyIndex(1)', '.blob.core.windows.net')]"
           }
         }
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('linuxNicNamePrefix'), '0', copyIndex(1)))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', concat(variables('linuxVmStorageNamePrefix'), '0', copyIndex(1)))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', concat(variables('linuxVmStorageNamePrefix'), '0', copyIndex(1), 'st0', 'copyIndex(1)'))]",
         "[concat('Microsoft.Compute/availabilitySets/', variables('linuxAvailabilitySetName'))]"
       ]
     },
@@ -852,7 +852,7 @@
         "tier": "Standard"
       },
       "kind": "Storage",
-      "name": "[concat(variables('linuxVmStorageNamePrefix'), '0', copyIndex(1))]",
+      "name": "[concat(variables('linuxVmStorageNamePrefix'), '0', copyIndex(1), 'st0', 'copyIndex(1)')]",
       "apiVersion": "2018-02-01",
       "location": "[resourceGroup().location]",
       "tags": "[parameters('tagValues')]",
