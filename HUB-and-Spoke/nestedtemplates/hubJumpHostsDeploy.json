@@ -273,13 +273,13 @@
         "diagnosticsProfile": {
           "bootDiagnostics": {
             "enabled": true,
-            "storageUri": "[concat('https', '://', variables('winVmStorageNamePrefix'), '0', copyIndex(1), 'st0', 'copyIndex(1)', '.blob.core.windows.net')]"
+            "storageUri": "[concat('https', '://', variables('winVmStorageNamePrefix'), '0', copyIndex(1), 'st0', copyIndex(1), '.blob.core.windows.net')]"
           }
         }
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('winNicNamePrefix'), '0', copyIndex(1)))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', concat(variables('winVmStorageNamePrefix'), '0', copyIndex(1), 'st0', 'copyIndex(1)'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', concat(variables('winVmStorageNamePrefix'), '0', copyIndex(1), 'st0', copyIndex(1)))]",
         "[concat('Microsoft.Compute/availabilitySets/', variables('winAvailabilitySetName'))]"
       ]
     },
@@ -489,7 +489,7 @@
         "name": "Basic",
         "tier": "Regional"
       },
-      "name": "[concat('PIP_', parameters('winJmphostVmNamePrefix'), '0', copyIndex(1))]",
+      "name": "[concat(parameters('winJmphostVmNamePrefix'), '0', copyIndex(1), '-pip')]",
       "apiVersion": "2018-02-01",
       "location": "[resourceGroup().location]",
       "tags": "[parameters('tagValues')]",
@@ -519,7 +519,7 @@
         "tier": "Standard"
       },
       "kind": "Storage",
-      "name": "[concat(variables('winVmStorageNamePrefix'), '0', copyIndex(1), 'st0', 'copyIndex(1)')]",
+      "name": "[concat(variables('winVmStorageNamePrefix'), '0', copyIndex(1), 'st0', copyIndex(1))]",
       "apiVersion": "2018-02-01",
       "location": "[resourceGroup().location]",
       "tags": "[parameters('tagValues')]",
@@ -607,13 +607,13 @@
         "diagnosticsProfile": {
           "bootDiagnostics": {
             "enabled": true,
-            "storageUri": "[concat('https', '://', variables('linuxVmStorageNamePrefix'), '0', copyIndex(1), 'st0', 'copyIndex(1)', '.blob.core.windows.net')]"
+            "storageUri": "[concat('https', '://', variables('linuxVmStorageNamePrefix'), '0', copyIndex(1), 'st0', copyIndex(1), '.blob.core.windows.net')]"
           }
         }
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('linuxNicNamePrefix'), '0', copyIndex(1)))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', concat(variables('linuxVmStorageNamePrefix'), '0', copyIndex(1), 'st0', 'copyIndex(1)'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', concat(variables('linuxVmStorageNamePrefix'), '0', copyIndex(1), 'st0', copyIndex(1)))]",
         "[concat('Microsoft.Compute/availabilitySets/', variables('linuxAvailabilitySetName'))]"
       ]
     },
@@ -630,7 +630,6 @@
       },
       "scale": null,
       "properties": {
-        "provisioningState": "Succeeded",
         "ipConfigurations": [
           {
             "name": "[concat('ipconfig', copyIndex(1))]",
@@ -822,7 +821,7 @@
         "name": "Basic",
         "tier": "Regional"
       },
-      "name": "[concat('PIP_', parameters('linuxJmphostVmNamePrefix'), '0', copyIndex(1))]",
+      "name": "[concat(parameters('linuxJmphostVmNamePrefix'), '0', copyIndex(1), '-pip')]",
       "apiVersion": "2018-02-01",
       "location": "[resourceGroup().location]",
       "tags": "[parameters('tagValues')]",
@@ -852,7 +851,7 @@
         "tier": "Standard"
       },
       "kind": "Storage",
-      "name": "[concat(variables('linuxVmStorageNamePrefix'), '0', copyIndex(1), 'st0', 'copyIndex(1)')]",
+      "name": "[concat(variables('linuxVmStorageNamePrefix'), '0', copyIndex(1), 'st0', copyIndex(1))]",
       "apiVersion": "2018-02-01",
       "location": "[resourceGroup().location]",
       "tags": "[parameters('tagValues')]",
