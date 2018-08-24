@@ -2,10 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "existingHubVnetResourceGroup": {
-      "defaultValue": "CMN-HUB-VNET-rg",
-      "type": "String"
-    },
     "existingGoepProdHubJumphostsResourceGroup": {
       "defaultValue": "GOE-HUB-VM-JMPAZRPRDEU-rg",
       "type": "String"
@@ -44,7 +40,7 @@
     },
     "subnetAppPrdManagementPrefix": {
       "type": "string",
-      "defaultValue": "10.124.1.129/25"
+      "defaultValue": "10.124.1.128/25"
     },
     "subnetGoepNprManagementName": {
       "type": "string",
@@ -60,7 +56,7 @@
     },
     "subnetAppNprManagementPrefix": {
       "type": "string",
-      "defaultValue": "10.124.2.129/25"
+      "defaultValue": "10.124.2.128/25"
     },
     "subnetSharedName": {
       "type": "string",
@@ -349,7 +345,6 @@
       "apiVersion": "2018-02-01",
       "name": "hubNetwork",
       "type": "Microsoft.Resources/deployments",
-      "resourceGroup": "[parameters('existingHubVnetResourceGroup')]",
       "properties": {
         "mode": "incremental",
         "templateLink": {
@@ -374,7 +369,7 @@
       "name": "hubGoepProductionJumpHosts",
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
-        "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Resources/deployments', 'hubNetwork')]"
+        "[resourceId('Microsoft.Resources/deployments', 'hubNetwork')]"
       ],
       "resourceGroup": "[parameters('existingGoepProdHubJumphostsResourceGroup')]",
       "properties": {
@@ -384,7 +379,7 @@
           "uri": "[variables('hubJumpHostsTemplateURI')]"
         },
         "parameters": {
-          "existingHubVnetResourceGroup": { "value": "[parameters('existingHubVnetResourceGroup')]" },
+          "existingHubVnetResourceGroup": { "value": "[resourceGroup().name]" },
           "existingHubVnetName": { "value": "[parameters('hubVnetName')]" },
           "existingManagementSubnetName": { "value": "[parameters('subnetGoepPrdManagementName')]" },
           "tagValues": { "value": "[parameters('hubJumpHostsTagValues')]" },
@@ -408,7 +403,7 @@
       "name": "hubAppProductionJumpHosts",
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
-        "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Resources/deployments', 'hubNetwork')]"
+        "[resourceId('Microsoft.Resources/deployments', 'hubNetwork')]"
       ],
       "resourceGroup": "[parameters('existingAppProdHubJumphostsResourceGroup')]",
       "properties": {
@@ -418,7 +413,7 @@
           "uri": "[variables('hubJumpHostsTemplateURI')]"
         },
         "parameters": {
-          "existingHubVnetResourceGroup": { "value": "[parameters('existingHubVnetResourceGroup')]" },
+          "existingHubVnetResourceGroup": { "value": "[resourceGroup().name]" },
           "existingHubVnetName": { "value": "[parameters('hubVnetName')]" },
           "existingManagementSubnetName": { "value": "[parameters('subnetAppPrdManagementName')]" },
           "tagValues": { "value": "[parameters('hubJumpHostsTagValues')]" },
@@ -442,7 +437,7 @@
       "name": "hubGoepNonProductionJumpHosts",
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
-        "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Resources/deployments', 'hubNetwork')]"
+        "[resourceId('Microsoft.Resources/deployments', 'hubNetwork')]"
       ],
       "resourceGroup": "[parameters('existingGoepNonProdHubJumphostsResourceGroup')]",
       "properties": {
@@ -452,7 +447,7 @@
           "uri": "[variables('hubJumpHostsTemplateURI')]"
         },
         "parameters": {
-          "existingHubVnetResourceGroup": { "value": "[parameters('existingHubVnetResourceGroup')]" },
+          "existingHubVnetResourceGroup": { "value": "[resourceGroup().name]" },
           "existingHubVnetName": { "value": "[parameters('hubVnetName')]" },
           "existingManagementSubnetName": { "value": "[parameters('subnetGoepNprManagementName')]" },
           "tagValues": { "value": "[parameters('hubJumpHostsTagValues')]" },
@@ -476,7 +471,7 @@
       "name": "hubAppNonProductionJumpHosts",
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
-        "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Resources/deployments', 'hubNetwork')]"
+        "[resourceId('Microsoft.Resources/deployments', 'hubNetwork')]"
       ],
       "resourceGroup": "[parameters('existingAppNonProdHubJumphostsResourceGroup')]",
       "properties": {
@@ -486,7 +481,7 @@
           "uri": "[variables('hubJumpHostsTemplateURI')]"
         },
         "parameters": {
-          "existingHubVnetResourceGroup": { "value": "[parameters('existingHubVnetResourceGroup')]" },
+          "existingHubVnetResourceGroup": { "value": "[resourceGroup().name]" },
           "existingHubVnetName": { "value": "[parameters('hubVnetName')]" },
           "existingManagementSubnetName": { "value": "[parameters('subnetAppNprManagementName')]" },
           "tagValues": { "value": "[parameters('hubJumpHostsTagValues')]" },

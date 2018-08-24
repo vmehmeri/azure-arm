@@ -3,16 +3,20 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "existingHubVnetResourceGroup": {
-      "type": "String"
+      "type": "String",
+      "defaultValue": "CMN-HUB-NET-rg"
     },
     "existingHubVnetName": {
-      "type": "String"
+      "type": "String",
+      "defaultValue": "HUB-vnet"
     },
     "firewallName": {
-      "type": "String"
+      "type": "String",
+      "defaultValue": "CMN-HUB-fw"
     },
     "firewallSubnetPrefix": {
-      "type": "String"
+      "type": "String",
+      "defaultValue": "10.124.0.0/25"
     }
   },
   "variables": {
@@ -23,7 +27,7 @@
   },
   "resources": [
     {
-      "name": "Azure Firewall Subnet Deployment",
+      "name": "AzureFirewallSubnetDeployment",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2018-02-01",
       "resourceGroup": "[parameters('existingHubVnetResourceGroup')]",

@@ -1,159 +1,115 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "existingHubVnetResourceGroup": {
-      "type": "String",
-      "defaultValue": "CMN-HUB-VNET-rg"
-    },
-    "existingHubVnetName": {
-      "type": "String",
-      "defaultValue": "HUB-vnet"
-    },
-    "prdGatewayName": {
-      "type": "string"
-    },
-    "nprGatewayName": {
-      "type": "string"
-    },
-    "gatewaySubnetPrefix": {
-      "type": "string",
-      "defaultValue": "10.124.15.193/26"
-    },
-    "gatewaySku": {
-      "type": "string",
-      "defaultValue": "VpnGw1",
-      "allowedValues": [
-        "Basic",
-        "VpnGw1",
-        "VpnGw2",
-        "VpnGw3"
-      ],
-      "metadata": {
-        "description": "The SKU of the Gateway, if deployed"
+   "$schema":"https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+   "contentVersion":"1.0.0.0",
+   "parameters":{
+      "existingHubVnetName":{
+         "type":"String",
+         "defaultValue":"HUB-vnet"
+      },
+      "gatewayName":{
+         "type":"string"
+      },
+      "gatewaySubnetPrefix":{
+         "type":"string",
+         "defaultValue":"10.124.15.192/26"
+      },
+      "gatewaySku":{
+         "type":"string",
+         "defaultValue":"VpnGw1",
+         "allowedValues":[
+            "Basic",
+            "VpnGw1",
+            "VpnGw2",
+            "VpnGw3"
+         ],
+         "metadata":{
+            "description":"The SKU of the Gateway, if deployed"
+         }
       }
-    }
-  },
-  "variables": {
-    "subnetGatewayName": "GatewaySubnet",
-    "subnetGatewayId": "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('existingHubVnetName'), variables('subnetGatewayName'))]",
-    "prdGatewayPIPName": "[concat(parameters('prdGatewayName'), '-pip')]",
-    "nprGatewayPIPName": "[concat(parameters('nprGatewayName'), '-pip')]"
-  },
-  "resources": [
-    {
-      "name": "GatewaySubnetDeployment",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2018-02-01",
-      "resourceGroup": "[parameters('existingHubVnetResourceGroup')]",
-      "properties": {
-        "mode": "Incremental",
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "parameters": {},
-          "variables": {},
-          "resources": [
-            {
-              "comments": "Gateway Subnet",
-              "type": "Microsoft.Network/virtualNetworks/subnets",
-              "name": "[concat(parameters('existingHubVnetName'), '/', variables('subnetGatewayName'))]",
-              "apiVersion": "2018-02-01",
-              "scale": null,
-              "properties": {
-                "addressPrefix": "[parameters('gatewaySubnetPrefix')]",
-                "serviceEndpoints": []
-              }
+   },
+   "variables":{
+      "subnetGatewayName":"GatewaySubnet",
+      "subnetGatewayId":"[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('existingHubVnetName'), variables('subnetGatewayName'))]",
+      "gatewayPIPName":"[concat(parameters('gatewayName'), '-pip')]"
+   },
+   "resources":[
+      {
+         "name":"GatewaySubnetDeployment",
+         "type":"Microsoft.Resources/deployments",
+         "apiVersion":"2018-02-01",
+         "properties":{
+            "mode":"Incremental",
+            "template":{
+               "$schema":"https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+               "contentVersion":"1.0.0.0",
+               "parameters":{
+
+               },
+               "variables":{
+
+               },
+               "resources":[
+                  {
+                     "comments":"Gateway Subnet",
+                     "type":"Microsoft.Network/virtualNetworks/subnets",
+                     "name":"[concat(parameters('existingHubVnetName'), '/', variables('subnetGatewayName'))]",
+                     "apiVersion":"2018-02-01",
+                     "scale":null,
+                     "properties":{
+                        "addressPrefix":"[parameters('gatewaySubnetPrefix')]",
+                        "serviceEndpoints":[
+
+                        ]
+                     }
+                  }
+               ]
             }
-          ]
-        }
-      }
-    },
-    {
-      "apiVersion": "2018-02-01",
-      "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[variables('prdGatewayPIPName')]",
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "publicIPAllocationMethod": "Static"
-      }
-    },
-    {
-      "apiVersion": "2018-02-01",
-      "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[variables('nprGatewayPIPName')]",
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "publicIPAllocationMethod": "Static"
-      }
-    },
-    {
-      "apiVersion": "2017-10-01",
-      "type": "Microsoft.Network/virtualNetworkGateways",
-      "name": "[parameters('prdGatewayName')]",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('prdGatewayPIPName'))]",
-        "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('existingHubVnetName'), variables('subnetGatewayName'))]"
-      ],
-      "properties": {
-        "ipConfigurations": [
-          {
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "subnet": {
-                "id": "[variables('subnetGatewayId')]"
-              },
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('prdGatewayPIPName'))]"
-              }
+         }
+      },
+      {
+         "apiVersion":"2018-02-01",
+         "type":"Microsoft.Network/publicIPAddresses",
+         "name":"[variables('gatewayPIPName')]",
+         "location":"[resourceGroup().location]",
+         "properties":{
+            "publicIPAllocationMethod":"Dynamic"
+         }
+      },
+      {
+         "apiVersion":"2017-10-01",
+         "type":"Microsoft.Network/virtualNetworkGateways",
+         "name":"[parameters('gatewayName')]",
+         "location":"[resourceGroup().location]",
+         "dependsOn":[
+            "[resourceId('Microsoft.Network/publicIPAddresses', variables('gatewayPIPName'))]",
+            "[resourceId('Microsoft.Resources/deployments', 'GatewaySubnetDeployment')]"
+         ],
+         "properties":{
+            "ipConfigurations":[
+               {
+                  "properties":{
+                     "privateIPAllocationMethod":"Dynamic",
+                     "subnet":{
+                        "id":"[variables('subnetGatewayId')]"
+                     },
+                     "publicIPAddress":{
+                        "id":"[resourceId('Microsoft.Network/publicIPAddresses', variables('gatewayPIPName'))]"
+                     }
+                  },
+                  "name":"vnetGatewayConfig"
+               }
+            ],
+            "sku":{
+               "name":"[parameters('gatewaySku')]",
+               "tier":"[parameters('gatewaySku')]"
             },
-            "name": "vnetGatewayConfig"
-          }
-        ],
-        "sku": {
-          "name": "[parameters('gatewaySku')]",
-          "tier": "[parameters('gatewaySku')]"
-        },
-        "gatewayType": "Vpn",
-        "vpnType": "RouteBased",
-        "enableBgp": "false"
+            "gatewayType":"Vpn",
+            "vpnType":"RouteBased",
+            "enableBgp":"false"
+         }
       }
-    },
-    {
-      "apiVersion": "2017-10-01",
-      "type": "Microsoft.Network/virtualNetworkGateways",
-      "name": "[parameters('nprGatewayName')]",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('nprGatewayPIPName'))]",
-        "[resourceId(parameters('existingHubVnetResourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('existingHubVnetName'), variables('subnetGatewayName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('prdGatewayName'))]"
-      ],
-      "properties": {
-        "ipConfigurations": [
-          {
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "subnet": {
-                "id": "[variables('subnetGatewayId')]"
-              },
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('nprGatewayPIPName'))]"
-              }
-            },
-            "name": "vnetGatewayConfig"
-          }
-        ],
-        "sku": {
-          "name": "[parameters('gatewaySku')]",
-          "tier": "[parameters('gatewaySku')]"
-        },
-        "gatewayType": "Vpn",
-        "vpnType": "RouteBased",
-        "enableBgp": "false"
-      }
-    }
-  ],
-    "outputs": {}
+   ],
+   "outputs":{
+
+   }
 }
