@@ -1,2 +1,2 @@
 # azure-arm
-Deploy HUB and Spoke architecture
+ARM Template Utils
