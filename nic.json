@@ -67,7 +67,10 @@
 			  "applicationSecurityGroups": "[parameters('applicationSecurityGroups')]"
             }
           }
-        ]
+        ],
+        "enableAcceleratedNetworking": true,
+        "enableIPForwarding": false,
+        "primary": true
       }
     }
   ],
